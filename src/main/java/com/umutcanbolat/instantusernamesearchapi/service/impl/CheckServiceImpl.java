@@ -104,12 +104,19 @@ public class CheckServiceImpl implements CheckService {
             available = true;
           }
         }
-        return new ServiceResponseModel(site.getService(), url, available);
+        return ServiceResponseModel.builder()
+            .service(site.getService())
+            .url(url)
+            .available(available)
+            .build();
       }
       // service not found
-      return new ServiceResponseModel("Service " + service + " is not supported yet :/");
+      return ServiceResponseModel.builder()
+          .message("Service " + service + " is not supported yet :/")
+          .build();
     } catch (Exception ex) {
-      return new ServiceResponseModel(ex.getMessage());
+      log.error("Error while checking service availability", ex);
+      return ServiceResponseModel.builder().message("An error happened :O").build();
     }
   }
 

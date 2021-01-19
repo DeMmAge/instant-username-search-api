@@ -7,10 +7,10 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 public class SiteModel {
-  private String service;
-  private String url;
-  private String urlRegister;
-  private int errorType;
-  private String errorMsg;
-  private String userAgent;
+  String service;
+  String url;
+  String urlRegister;
+  int errorType;
+  String errorMsg;
+  String userAgent;
 }
