@@ -351,7 +351,7 @@
     "errorMsg": null,
     "userAgent": null
   },
-  "dev community": {
+  "devCommunity": {
     "service": "DEV Community",
     "url": "https://dev.to/{}",
     "urlRegister": "https://dev.to/",
@@ -855,7 +855,7 @@
     "errorMsg": null,
     "userAgent": null
   },
-  "star citizen": {
+  "starCitizen": {
     "service": "Star Citizen",
     "url": "https://robertsspaceindustries.com/citizens/{}",
     "urlRegister": "https://robertsspaceindustries.com/",
@@ -871,7 +871,7 @@
     "errorMsg": "The specified profile could not be found.",
     "userAgent": null
   },
-  "steamgroup": {
+  "steamGroup": {
     "service": "SteamGroup",
     "url": "https://steamcommunity.com/groups/{}",
     "urlRegister": "https://steamcommunity.com/",
@@ -927,7 +927,7 @@
     "errorMsg": null,
     "userAgent": null
   },
-  "tripadvisor": {
+  "tripAdvisor": {
     "service": "TripAdvisor",
     "url": "https://tripadvisor.com/members/{}",
     "urlRegister": "https://tripadvisor.com/",
@@ -983,7 +983,7 @@
     "errorMsg": null,
     "userAgent": null
   },
-  "we heart it": {
+  "weHeartIt": {
     "service": "We Heart It",
     "url": "https://weheartit.com/{}",
     "urlRegister": "https://weheartit.com/",

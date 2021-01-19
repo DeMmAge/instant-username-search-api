@@ -10,23 +10,24 @@ import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
 import com.umutcanbolat.instantusernamesearchapi.model.SiteModel;
 import com.umutcanbolat.instantusernamesearchapi.service.CheckService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 @Service
 @Slf4j
 public class CheckServiceImpl implements CheckService {
-  @Autowired private ResourceLoader resourceLoader;
   private static LinkedHashMap<String, SiteModel> sitesMap;
+  private static List<ServiceModel> serviceList = new ArrayList<>();
 
   static {
     // read sites data from resources
@@ -37,6 +38,21 @@ public class CheckServiceImpl implements CheckService {
     Gson gson = new Gson();
     Type mapType = new TypeToken<LinkedHashMap<String, SiteModel>>() {}.getType();
     sitesMap = gson.fromJson(reader, mapType);
+
+    for (Entry<String, SiteModel> site : sitesMap.entrySet()) {
+      try {
+        String serviceName = site.getValue().getService();
+        URI serviceEndpoint = new URI("/" + site.getKey().toLowerCase());
+
+        serviceList.add(
+            ServiceModel.builder()
+                .service(serviceName)
+                .endpoint(serviceEndpoint + "/{username}")
+                .build());
+      } catch (URISyntaxException e) {
+        log.error("Cannot build service check URL", e);
+      }
+    }
   }
 
   @Override
@@ -97,17 +113,6 @@ public class CheckServiceImpl implements CheckService {
 
   @Override
   public List<ServiceModel> getServices() {
-    try {
-      List<ServiceModel> serviceList = new ArrayList<ServiceModel>();
-
-      for (SiteModel site : sitesMap.values()) {
-        serviceList.add(
-            new ServiceModel(
-                site.getService(), "/" + site.getService().toLowerCase() + "/{username}"));
-      }
-      return serviceList;
-    } catch (Exception ex) {
-      return null;
-    }
+    return serviceList;
   }
 }
