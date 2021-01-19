@@ -1,36 +1,12 @@
 package com.umutcanbolat.instantusernamesearchapi.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Builder;
+import lombok.Value;
 
+/** This model is used for exposing the available (checkable) services list to the client */
+@Value
+@Builder
 public class ServiceModel {
-  private String service;
-  private String endpoint;
-
-  public String getService() {
-    return service;
-  }
-
-  public void setService(String service) {
-    this.service = service;
-  }
-
-  public String getEndpoint() {
-    return endpoint;
-  }
-
-  public void setEndpoint(String endpoint) {
-    this.endpoint = endpoint;
-  }
-
-  @Override
-  public String toString() {
-    return "ServiceModel [service=" + service + ", endpoint=" + endpoint + "]";
-  }
-
-  @Autowired
-  public ServiceModel(String service, String endpoint) {
-    super();
-    this.service = service;
-    this.endpoint = endpoint;
-  }
+  String service;
+  String endpoint;
 }

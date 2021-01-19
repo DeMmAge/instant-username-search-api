@@ -1,9 +1,10 @@
 package com.umutcanbolat.instantusernamesearchapi.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+/** This model is used for parsing sites.json file */
+@Value
 @AllArgsConstructor
 public class SiteModel {
   private String service;
