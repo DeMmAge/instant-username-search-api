@@ -27,18 +27,20 @@ import java.util.Map.Entry;
 @Slf4j
 public class CheckServiceImpl implements CheckService {
   private static LinkedHashMap<String, SiteModel> sitesMap;
-  private static List<ServiceModel> serviceList = new ArrayList<>();
+  private static List<ServiceModel> serviceList;
 
-  static {
-    // read sites data from resources
+  public CheckServiceImpl() {
+    // read sites.json file
     InputStream in = CheckController.class.getResourceAsStream("/static/sites.json");
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-    // parse json to model list
+    // parse json to model
     Gson gson = new Gson();
     Type mapType = new TypeToken<LinkedHashMap<String, SiteModel>>() {}.getType();
     sitesMap = gson.fromJson(reader, mapType);
 
+    // prepare serviceList
+    serviceList = new ArrayList<>();
     for (Entry<String, SiteModel> site : sitesMap.entrySet()) {
       try {
         String serviceName = site.getValue().getService();
