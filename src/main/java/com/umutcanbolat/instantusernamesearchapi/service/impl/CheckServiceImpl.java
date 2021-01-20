@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.umutcanbolat.instantusernamesearchapi.controller.CheckController;
+import com.umutcanbolat.instantusernamesearchapi.model.ErrorType;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
 import com.umutcanbolat.instantusernamesearchapi.model.SiteModel;
@@ -38,6 +39,9 @@ public class CheckServiceImpl implements CheckService {
     Gson gson = new Gson();
     Type mapType = new TypeToken<LinkedHashMap<String, SiteModel>>() {}.getType();
     sitesMap = gson.fromJson(reader, mapType);
+
+    log.info(sitesMap.get("instagram").toString());
+    log.info(sitesMap.get("tiktok").toString());
 
     // prepare serviceList
     serviceList = new ArrayList<>();
@@ -84,26 +88,16 @@ public class CheckServiceImpl implements CheckService {
 
         boolean available = false;
 
-        /*
-         * Error Types
-         * 0: returns HTTP 4xx response when the username is available.
-         * 1: still returns HTTP 2xx when the username is not taken, so we check the response body for errorMsg.
-         * 2: returns HTTP 4xx if the username is not taken or disabled.
-         * 	  Since disabled usernames cannot be taken again, we check the response body.
-         */
-        if (site.getErrorType() == 0) {
+        if (ErrorType.HTTP.equals(site.getErrorType())) {
           if (response.getStatus() != 200) {
             available = true;
           }
-        } else if (site.getErrorType() == 1) {
+        } else if (ErrorType.TEXT.equals(site.getErrorType())) {
           if (response.getBody().contains(site.getErrorMsg())) {
             available = true;
           }
-        } else if (site.getErrorType() == 2) {
-          if (response.getStatus() != 200 && response.getBody().contains(site.getErrorMsg())) {
-            available = true;
-          }
         }
+
         return ServiceResponseModel.builder()
             .service(site.getService())
             .url(url)

@@ -10,7 +10,7 @@ public class SiteModel {
   String service;
   String url;
   String urlRegister;
-  int errorType;
+  ErrorType errorType;
   String errorMsg;
   String userAgent;
 }
