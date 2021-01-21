@@ -1,10 +1,9 @@
 package com.umutcanbolat.instantusernamesearchapi.service.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.umutcanbolat.instantusernamesearchapi.controller.CheckController;
 import com.umutcanbolat.instantusernamesearchapi.model.ErrorType;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
@@ -14,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,21 +26,20 @@ import java.util.Map.Entry;
 @Service
 @Slf4j
 public class CheckServiceImpl implements CheckService {
-  private static LinkedHashMap<String, SiteModel> sitesMap;
-  private static List<ServiceModel> serviceList;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public CheckServiceImpl() {
-    // read sites.json file
-    InputStream in = CheckController.class.getResourceAsStream("/static/sites.json");
+  private LinkedHashMap<String, SiteModel> sitesMap;
+  private List<ServiceModel> serviceList;
+
+  public CheckServiceImpl() throws IOException {
+    // read and parse sites.json file
+    InputStream in =
+        new LinkedHashMap<String, SiteModel>() {}.getClass()
+            .getResourceAsStream("/static/sites.json");
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-    // parse json to model
-    Gson gson = new Gson();
-    Type mapType = new TypeToken<LinkedHashMap<String, SiteModel>>() {}.getType();
-    sitesMap = gson.fromJson(reader, mapType);
-
-    log.info(sitesMap.get("instagram").toString());
-    log.info(sitesMap.get("tiktok").toString());
+    sitesMap =
+        objectMapper.readValue(reader, new TypeReference<LinkedHashMap<String, SiteModel>>() {});
 
     // prepare serviceList
     serviceList = new ArrayList<>();
@@ -73,9 +71,9 @@ public class CheckServiceImpl implements CheckService {
                 .header("Upgrade-Insecure-Requests", "1")
                 .header(
                     "User-Agent",
-                    site.getUserAgent() != null
-                        ? site.getUserAgent()
-                        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36")
+                    site.getUserAgent()
+                        .orElse(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"))
                 .header(
                     "Accept",
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
@@ -93,9 +91,16 @@ public class CheckServiceImpl implements CheckService {
             available = true;
           }
         } else if (ErrorType.TEXT.equals(site.getErrorType())) {
-          if (response.getBody().contains(site.getErrorMsg())) {
-            available = true;
-          }
+          available =
+              site.getErrorMsg()
+                  .map(msg -> response.getBody().contains(msg))
+                  .orElseGet(
+                      () -> {
+                        log.error(
+                            "Configuration error. `errorMsg` field should not be empty when the errorType is set to TEXT. Misconfiguration in site data of {}.",
+                            site.getService());
+                        return false;
+                      });
         }
 
         return ServiceResponseModel.builder()

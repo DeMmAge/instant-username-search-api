@@ -1,16 +1,24 @@
 package com.umutcanbolat.instantusernamesearchapi.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
+
+import java.util.Optional;
 
 /** This model is used for parsing sites.json file */
-@Value
-@AllArgsConstructor
+@Data
 public class SiteModel {
   String service;
   String url;
   String urlRegister;
   ErrorType errorType;
-  String errorMsg;
-  String userAgent;
+  Optional<String> errorMsg;
+  Optional<String> userAgent;
+
+  public void setErrorMsg(String errorMsg) {
+    this.errorMsg = Optional.ofNullable(errorMsg);
+  }
+
+  public void setUserAgent(String userAgent) {
+    this.userAgent = Optional.ofNullable(userAgent);
+  }
 }
