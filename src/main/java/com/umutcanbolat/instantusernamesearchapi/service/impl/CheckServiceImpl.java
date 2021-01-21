@@ -26,37 +26,19 @@ import java.util.Map.Entry;
 @Service
 @Slf4j
 public class CheckServiceImpl implements CheckService {
+  private final String SITES_PATH = "/static/sites.json";
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  // LinkedHashMap to keep the order.
   private LinkedHashMap<String, SiteModel> sitesMap;
   private List<ServiceModel> serviceList;
 
   public CheckServiceImpl() throws IOException {
     // read and parse sites.json file
-    InputStream in =
-        new LinkedHashMap<String, SiteModel>() {}.getClass()
-            .getResourceAsStream("/static/sites.json");
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-    sitesMap =
-        objectMapper.readValue(reader, new TypeReference<LinkedHashMap<String, SiteModel>>() {});
+    sitesMap = readSitesData();
 
     // prepare serviceList
-    serviceList = new ArrayList<>();
-    for (Entry<String, SiteModel> site : sitesMap.entrySet()) {
-      try {
-        String serviceName = site.getValue().getService();
-        URI serviceEndpoint = new URI("/" + site.getKey().toLowerCase());
-
-        serviceList.add(
-            ServiceModel.builder()
-                .service(serviceName)
-                .endpoint(serviceEndpoint + "/{username}")
-                .build());
-      } catch (URISyntaxException e) {
-        log.error("Cannot build service check URL", e);
-      }
-    }
+    serviceList = prepareServices();
   }
 
   @Override
@@ -122,5 +104,35 @@ public class CheckServiceImpl implements CheckService {
   @Override
   public List<ServiceModel> getServices() {
     return serviceList;
+  }
+
+  private LinkedHashMap<String, SiteModel> readSitesData() throws IOException {
+    InputStream in =
+        new LinkedHashMap<String, SiteModel>() {}.getClass().getResourceAsStream(SITES_PATH);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+    return objectMapper.readValue(reader, new TypeReference<LinkedHashMap<String, SiteModel>>() {});
+  }
+
+  private List<ServiceModel> prepareServices() {
+    List<ServiceModel> services = new ArrayList<>();
+
+    for (Entry<String, SiteModel> site : this.sitesMap.entrySet()) {
+      String serviceName = site.getValue().getService();
+
+      try {
+        URI serviceEndpoint = new URI("/" + site.getKey().toLowerCase());
+
+        serviceList.add(
+            ServiceModel.builder()
+                .service(serviceName)
+                .endpoint(serviceEndpoint + "/{username}")
+                .build());
+      } catch (URISyntaxException e) {
+        log.error("Cannot build check url for service: " + serviceName, e);
+      }
+    }
+
+    return services;
   }
 }
