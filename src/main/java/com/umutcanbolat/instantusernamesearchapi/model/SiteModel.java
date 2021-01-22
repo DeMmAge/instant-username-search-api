@@ -11,8 +11,8 @@ public class SiteModel {
   String url;
   String urlRegister;
   ErrorType errorType;
-  Optional<String> errorMsg;
-  Optional<String> userAgent;
+  Optional<String> errorMsg = Optional.empty();
+  Optional<String> userAgent = Optional.empty();
 
   public void setErrorMsg(String errorMsg) {
     this.errorMsg = Optional.ofNullable(errorMsg);
