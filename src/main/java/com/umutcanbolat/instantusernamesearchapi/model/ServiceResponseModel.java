@@ -1,9 +1,9 @@
 package com.umutcanbolat.instantusernamesearchapi.model;
 
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
-@Value
+@Data
 @Builder
 public class ServiceResponseModel {
   String service;
