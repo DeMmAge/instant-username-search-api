@@ -8,6 +8,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.umutcanbolat.instantusernamesearchapi.model.ErrorType;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
+import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel.ServiceResponseModelBuilder;
 import com.umutcanbolat.instantusernamesearchapi.model.SiteModel;
 import com.umutcanbolat.instantusernamesearchapi.service.CheckService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,37 +46,40 @@ public class CheckServiceImpl implements CheckService {
   @Override
   public ServiceResponseModel check(String service, String username) {
     log.trace("Checking `{}` for the availability of username `{}`", service, username);
+    SiteModel site = sitesMap.get(service.toLowerCase());
+
+    ServiceResponseModelBuilder responseBuilder = ServiceResponseModel.builder();
+    if (site == null) {
+      log.warn("Service `{}` is not configured. Aborting the request..", service);
+      return responseBuilder.message("Service " + service + " is not supported yet :/").build();
+    }
+
+    final String serviceName = site.getService();
+    final String requestUrl = site.getUrl().replace("{}", username);
+    final ErrorType errorType = site.getErrorType();
+    responseBuilder.service(serviceName);
+    responseBuilder.url(requestUrl);
+
     try {
-      SiteModel site = sitesMap.get(service.toLowerCase());
-
-      if (site == null) {
-        log.warn("Service `{}` is not configured. Aborting the request..", service);
-        return ServiceResponseModel.builder()
-            .message("Service " + service + " is not supported yet :/")
-            .build();
-      }
-
-      String requestUrl = site.getUrl().replace("{}", username);
-      HttpResponse<String> response = sendRemoteRequest(site, requestUrl);
-
+      HttpResponse<String> remoteResponse = sendRemoteRequest(site, requestUrl);
       boolean available = false;
 
-      if (ErrorType.HTTP.equals(site.getErrorType())) {
+      if (ErrorType.HTTP.equals(errorType)) {
         log.trace(
             "For service `{}`, errorType is {} and response status is {}",
-            service,
-            site.getErrorType(),
-            response.getStatus());
-        if (response.getStatus() != 200) {
+            serviceName,
+            errorType,
+            remoteResponse.getStatus());
+        if (remoteResponse.getStatus() != 200) {
           available = true;
         }
-      } else if (ErrorType.TEXT.equals(site.getErrorType())) {
-        log.trace("For service `{}`, errorType is {}.", service, site.getErrorType());
+      } else if (ErrorType.TEXT.equals(errorType)) {
+        log.trace("For service `{}`, errorType is {}.", serviceName, errorType);
         available =
             site.getErrorMsg()
                 .map(
                     msg -> {
-                      boolean check = response.getBody().contains(msg);
+                      boolean check = remoteResponse.getBody().contains(msg);
                       log.trace(
                           "Seems like the response body contains error message `{}` is {}",
                           msg,
@@ -86,24 +90,17 @@ public class CheckServiceImpl implements CheckService {
                     () -> {
                       log.error(
                           "Configuration error. `errorMsg` field should not be empty when the `errorType` is set to TEXT. Misconfiguration in site data of `{}`.",
-                          site.getService());
+                          serviceName);
                       return false;
                     });
       }
 
       log.trace(
-          "Availability of username `{}` at `{}` seems to be {}", username, service, available);
-      return ServiceResponseModel.builder()
-          .service(service)
-          .url(requestUrl)
-          .available(available)
-          .build();
-
+          "Availability of username `{}` at `{}` seems to be {}", username, serviceName, available);
+      return responseBuilder.available(available).build();
     } catch (UnirestException ex) {
-      log.warn("Remote request for service `{}` was unsuccessful.", service);
-      return ServiceResponseModel.builder()
-          .message("An error happened while checking the service.")
-          .build();
+      log.warn("Remote request was unsuccessful  for service: " + serviceName, ex);
+      return responseBuilder.message("An error occured while checking the service.").build();
     }
   }
 
