@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.umutcanbolat.instantusernamesearchapi: TRACE
