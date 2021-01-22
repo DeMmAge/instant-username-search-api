@@ -1,10 +1,12 @@
 package com.umutcanbolat.instantusernamesearchapi.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
+import com.umutcanbolat.instantusernamesearchapi.helper.CheckServiceHelper;
 import com.umutcanbolat.instantusernamesearchapi.model.ErrorType;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
 import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
@@ -141,20 +143,18 @@ public class CheckServiceImpl implements CheckService {
 
   private HttpResponse<String> sendRemoteRequest(SiteModel site, String url)
       throws UnirestException {
-    log.trace("Sending remote request to: {}", url);
-    return Unirest.get(url)
-        .header("Connection", "keep-alive")
-        .header("Upgrade-Insecure-Requests", "1")
-        .header(
-            "User-Agent",
-            site.getUserAgent()
-                .orElse(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"))
-        .header(
-            "Accept",
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-        .header("Accept-Encoding", "gzip, deflate")
-        .header("Accept-Language", "en-US;q=1")
-        .asString();
+    GetRequest request = CheckServiceHelper.getBaseRequest(url);
+
+    if (site.getUserAgent().isPresent()) {
+      request.header("User-Agent", site.getUserAgent().get());
+    }
+
+    log.trace("Sending GET request to: {}", url);
+    try {
+      log.trace("with headers: {}", objectMapper.writeValueAsString(request.getHeaders()));
+    } catch (JsonProcessingException e) {
+      log.warn("Could not serialize request headers.", e);
+    }
+    return request.asString();
   }
 }
