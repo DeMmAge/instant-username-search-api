@@ -47,7 +47,7 @@ public class CheckServiceImpl implements CheckService {
 
   @Override
   public ServiceResponseModel check(String service, String username) {
-    log.trace("Checking `{}` for the availability of username `{}`", service, username);
+    log.debug("Checking `{}` for the availability of username `{}`", service, username);
     SiteModel site = sitesMap.get(service.toLowerCase());
 
     ServiceResponseModelBuilder responseBuilder = ServiceResponseModel.builder();
@@ -67,7 +67,7 @@ public class CheckServiceImpl implements CheckService {
       boolean available = false;
 
       if (ErrorType.HTTP.equals(errorType)) {
-        log.trace(
+        log.debug(
             "For service `{}`, errorType is {} and response status is {}",
             serviceName,
             errorType,
@@ -76,13 +76,13 @@ public class CheckServiceImpl implements CheckService {
           available = true;
         }
       } else if (ErrorType.TEXT.equals(errorType)) {
-        log.trace("For service `{}`, errorType is {}.", serviceName, errorType);
+        log.debug("For service `{}`, errorType is {}.", serviceName, errorType);
         available =
             site.getErrorMsg()
                 .map(
                     msg -> {
                       boolean check = remoteResponse.getBody().contains(msg);
-                      log.trace(
+                      log.debug(
                           "Seems like the response body contains error message `{}` is {}",
                           msg,
                           check);
@@ -97,7 +97,7 @@ public class CheckServiceImpl implements CheckService {
                     });
       }
 
-      log.trace(
+      log.debug(
           "Availability of username `{}` at `{}` seems to be {}", username, serviceName, available);
       return responseBuilder.available(available).build();
     } catch (UnirestException ex) {
@@ -108,6 +108,7 @@ public class CheckServiceImpl implements CheckService {
 
   @Override
   public List<ServiceModel> getServices() {
+    log.debug("Returning the list of the services.");
     return serviceList;
   }
 
@@ -115,7 +116,11 @@ public class CheckServiceImpl implements CheckService {
     InputStream in = getClass().getResourceAsStream(SITES_PATH);
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-    return objectMapper.readValue(reader, new TypeReference<LinkedHashMap<String, SiteModel>>() {});
+    LinkedHashMap<String, SiteModel> map =
+        objectMapper.readValue(reader, new TypeReference<LinkedHashMap<String, SiteModel>>() {});
+
+    log.info("Sites data read. Number of services read from configuration is: {}", map.size());
+    return map;
   }
 
   private List<ServiceModel> prepareServices() {
@@ -125,7 +130,7 @@ public class CheckServiceImpl implements CheckService {
       String serviceName = site.getValue().getService();
 
       try {
-        URI serviceEndpoint = new URI("/" + site.getKey().toLowerCase());
+        URI serviceEndpoint = new URI("/check/" + site.getKey().toLowerCase());
 
         services.add(
             ServiceModel.builder()
@@ -138,6 +143,7 @@ public class CheckServiceImpl implements CheckService {
       }
     }
 
+    log.info("Prepared the list of services. Total number of services is: {}", services.size());
     return services;
   }
 
@@ -149,9 +155,9 @@ public class CheckServiceImpl implements CheckService {
       request.header("User-Agent", site.getUserAgent().get());
     }
 
-    log.trace("Sending GET request to: {}", url);
+    log.debug("Sending GET request to: {}", url);
     try {
-      log.trace("with headers: {}", objectMapper.writeValueAsString(request.getHeaders()));
+      log.debug("with headers: {}", objectMapper.writeValueAsString(request.getHeaders()));
     } catch (JsonProcessingException e) {
       log.warn("Could not serialize request headers.", e);
     }
