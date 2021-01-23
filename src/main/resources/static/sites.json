@@ -823,14 +823,6 @@
     "errorMsg": null,
     "userAgent": null
   },
-  "smashcast": {
-    "service": "Smashcast",
-    "url": "https://www.smashcast.tv/api/media/live/{}",
-    "urlRegister": "https://www.smashcast.tv/",
-    "errorType": "HTTP",
-    "errorMsg": null,
-    "userAgent": null
-  },
   "soundcloud": {
     "service": "SoundCloud",
     "url": "https://soundcloud.com/{}",
