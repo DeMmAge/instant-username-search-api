@@ -30,8 +30,8 @@ import java.util.Map.Entry;
 @Service
 @Slf4j
 public class CheckServiceImpl implements CheckService {
-  private final String SITES_PATH = "/static/sites.json";
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private static final String SITES_PATH = "/static/sites.json";
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   // LinkedHashMap to keep the order.
   private LinkedHashMap<String, SiteModel> sitesMap;
