@@ -13,18 +13,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableCaching
 @EnableScheduling
 public class InstantUsernameSearchApiApplication {
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurerAdapter() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("*").allowedMethods("GET", "POST", "PUT", "DELETE");
-			}
-		};
-	}
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurerAdapter() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry
+            .addMapping("/**")
+            .allowedOrigins("https://instantusername.com", "http://instantusername.com")
+            .allowedMethods("GET");
+      }
+    };
+  }
 
-	public static void main(String[] args) {
-		SpringApplication.run(InstantUsernameSearchApiApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(InstantUsernameSearchApiApplication.class, args);
+  }
 }
