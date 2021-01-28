@@ -14,6 +14,9 @@ import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel.Serv
 import com.umutcanbolat.instantusernamesearchapi.model.SiteModel;
 import com.umutcanbolat.instantusernamesearchapi.service.CheckService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -30,16 +33,17 @@ import java.util.Map.Entry;
 @Service
 @Slf4j
 public class CheckServiceImpl implements CheckService {
-  private static final String SITES_PATH = "/static/sites.json";
+  private static final String SITES_PATH = "classpath:/static/sites.json";
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   // LinkedHashMap to keep the order.
   private LinkedHashMap<String, SiteModel> sitesMap;
   private List<ServiceModel> serviceList;
 
-  public CheckServiceImpl() throws IOException {
+  @Autowired
+  public CheckServiceImpl(@Value(SITES_PATH) Resource resource) throws IOException {
     // read and parse sites.json file
-    sitesMap = readSitesData();
+    sitesMap = readSitesData(resource);
 
     // prepare serviceList
     serviceList = prepareServices();
@@ -112,8 +116,8 @@ public class CheckServiceImpl implements CheckService {
     return serviceList;
   }
 
-  private LinkedHashMap<String, SiteModel> readSitesData() throws IOException {
-    InputStream in = getClass().getResourceAsStream(SITES_PATH);
+  private LinkedHashMap<String, SiteModel> readSitesData(Resource resource) throws IOException {
+    InputStream in = resource.getInputStream();
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
     LinkedHashMap<String, SiteModel> map =
