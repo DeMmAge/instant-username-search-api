@@ -1,4 +1,4 @@
-package com.umutcanbolat.instantusernamesearchapi.model;
+package com.instantusername.api.model;
 
 import lombok.Builder;
 import lombok.Data;

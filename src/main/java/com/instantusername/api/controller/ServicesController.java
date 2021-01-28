@@ -1,7 +1,7 @@
-package com.umutcanbolat.instantusernamesearchapi.controller;
+package com.instantusername.api.controller;
 
-import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
-import com.umutcanbolat.instantusernamesearchapi.service.CheckService;
+import com.instantusername.api.model.ServiceModel;
+import com.instantusername.api.service.CheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.RequestMapping;

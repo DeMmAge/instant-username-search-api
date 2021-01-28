@@ -9,11 +9,11 @@
         <version>2.1.1.RELEASE</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.umutcanbolat</groupId>
-    <artifactId>instant-username-search-api</artifactId>
+    <groupId>com.instantusername</groupId>
+    <artifactId>api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>instant-username-search-api</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Backend API of the project Instant Username Search</description>
 
     <properties>
         <java.version>1.8</java.version>

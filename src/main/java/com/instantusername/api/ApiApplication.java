@@ -1,4 +1,4 @@
-package com.umutcanbolat.instantusernamesearchapi;
+package com.instantusername.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @SpringBootApplication
 @EnableCaching
 @EnableScheduling
-public class InstantUsernameSearchApiApplication {
+public class ApiApplication {
   @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurerAdapter() {
@@ -27,6 +27,6 @@ public class InstantUsernameSearchApiApplication {
   }
 
   public static void main(String[] args) {
-    SpringApplication.run(InstantUsernameSearchApiApplication.class, args);
+    SpringApplication.run(ApiApplication.class, args);
   }
 }

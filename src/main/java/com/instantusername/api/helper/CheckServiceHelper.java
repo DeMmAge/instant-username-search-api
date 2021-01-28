@@ -1,4 +1,4 @@
-package com.umutcanbolat.instantusernamesearchapi.helper;
+package com.instantusername.api.helper;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.GetRequest;

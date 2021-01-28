@@ -1,18 +1,18 @@
-package com.umutcanbolat.instantusernamesearchapi.service.impl;
+package com.instantusername.api.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.instantusername.api.model.ErrorType;
+import com.instantusername.api.model.ServiceModel;
+import com.instantusername.api.model.ServiceResponseModel;
+import com.instantusername.api.model.SiteModel;
+import com.instantusername.api.service.CheckService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
-import com.umutcanbolat.instantusernamesearchapi.helper.CheckServiceHelper;
-import com.umutcanbolat.instantusernamesearchapi.model.ErrorType;
-import com.umutcanbolat.instantusernamesearchapi.model.ServiceModel;
-import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel;
-import com.umutcanbolat.instantusernamesearchapi.model.ServiceResponseModel.ServiceResponseModelBuilder;
-import com.umutcanbolat.instantusernamesearchapi.model.SiteModel;
-import com.umutcanbolat.instantusernamesearchapi.service.CheckService;
+import com.instantusername.api.helper.CheckServiceHelper;
+import com.instantusername.api.model.ServiceResponseModel.ServiceResponseModelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
